@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: NexBlog-Backend
+
+  # 1. H2 数据库配置
+  datasource:
+    # 这是 H2 内存数据库的连接地址，叫 nexblog
+    url: jdbc:h2:mem:NexBlog
+    driverClassName: org.h2.Driver
+    username: pengkk27
+    password: 123456
+
+  # 开启 H2 的网页版控制台
+  h2:
+    console:
+      enabled: true
+      # 你可以在浏览器通过这个路径访问数据库
+      path: /h2-console
+
+  # 2. JPA 配置
+  jpa:
+    # 自动生成数据库表！(update 表示如果实体类变了，表结构跟着变)
+    hibernate:
+      ddl-auto: update
+    # 在控制台打印出 JPA 帮你写的 SQL 语句，方便学习
+    show-sql: true
+    database-platform: org.hibernate.dialect.H2Dialect

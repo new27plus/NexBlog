@@ -255,5 +255,3 @@ cd backend
 ---
 
 ## License
-
-可根据你的开源计划补充（例如 MIT / Apache-2.0）。

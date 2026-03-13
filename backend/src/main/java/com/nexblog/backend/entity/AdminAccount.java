@@ -1,42 +1,34 @@
 package com.nexblog.backend.entity;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Entity
-@Table(name = "articles")
-public class Article {
+@Table(name = "admin_accounts")
+public class AdminAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
-    private String title;
+    @Column(nullable = false, unique = true, length = 100)
+    private String username;
 
-    @Lob
-    private String content;
+    @Column(nullable = false, length = 128)
+    private String passwordHash;
 
-    @Column(length = 300)
-    private String summary;
-
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
+    @Column(nullable = false, length = 64)
+    private String passwordSalt;
 
     private LocalDateTime createTime;
 
     private LocalDateTime upDateTime;
-
 }

@@ -7,6 +7,8 @@
  * 3) 接口地址、返回结构、错误处理都能统一管理。
  */
 
+import { getAuthToken } from '@/api/auth'
+
 export interface ApiResponse<T> {
   /*
    * code:
@@ -40,6 +42,8 @@ export interface ArticleListItem {
   id: number
   title: string
   summary: string | null
+  categoryId: number | null
+  categoryName: string | null
   createdAt: string
 }
 
@@ -48,6 +52,8 @@ export interface ArticleDetail {
   title: string
   content: string
   summary: string | null
+  categoryId: number | null
+  categoryName: string | null
   createdAt: string
   updatedAt: string
 }
@@ -56,6 +62,7 @@ export interface ArticleWritePayload {
   title: string
   content: string
   summary?: string
+  categoryId?: number | null
 }
 
 /*
@@ -66,9 +73,11 @@ export interface ArticleWritePayload {
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = getAuthToken()
   const response = await fetch(`${API_BASE_URL}${path}`, {
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(init?.headers ?? {}),
     },
     ...init,
@@ -79,6 +88,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
    * - 4xx/5xx 时后端可能都还没返回业务结构，先兜底更稳
    */
   if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('登录已过期，请重新登录')
+    }
     throw new Error(`HTTP 请求失败：${response.status}`)
   }
 

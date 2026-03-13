@@ -16,6 +16,8 @@ backend/.gradle/
 backend/build/
 backend/bin/
 backend/out/
+data/
+
 
 front/node_modules/
 front/dist/

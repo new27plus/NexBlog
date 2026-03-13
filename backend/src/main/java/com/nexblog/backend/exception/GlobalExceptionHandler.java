@@ -2,6 +2,7 @@ package com.nexblog.backend.exception;
 
 import java.util.stream.Collectors;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -29,15 +30,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BusinessException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiResponse<Void> handleBusiness(BusinessException ex) {
-        /*
-         * 业务异常建议按模块规划 code：
-         * - 10xxx: article
-         * - 20xxx: category
-         * - 30xxx: auth
-         */
-        return ApiResponse.fail(ex.getCode(), ex.getMessage());
+    public ResponseEntity<ApiResponse<Void>> handleBusiness(BusinessException ex) {
+        if (ex.getCode() == 30001) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.fail(ex.getCode(), ex.getMessage()));
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.fail(ex.getCode(), ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

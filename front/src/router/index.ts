@@ -3,6 +3,8 @@ import HomeView from '@/views/HomeView.vue'
 import ArticleDetailView from '@/views/ArticleDetailView.vue'
 import StudioArticleView from '@/views/StudioArticleView.vue'
 import StudioCategoryView from '@/views/StudioCategoryView.vue'
+import StudioLoginView from '@/views/StudioLoginView.vue'
+import { clearAuthSession, isAuthenticated } from '@/api/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,6 +23,11 @@ const router = createRouter({
       path: '/studio/articles',
       name: 'studio-articles',
       component: StudioArticleView
+    },
+    {
+      path: '/studio/login',
+      name: 'studio-login',
+      component: StudioLoginView
     },
     {
       path: '/studio/categories',
@@ -59,7 +66,32 @@ const router = createRouter({
       path: '/app/studio/categories',
       redirect: '/studio/categories'
     },
+    {
+      path: '/admin/login',
+      redirect: '/studio/login'
+    },
+    {
+      path: '/app/admin/login',
+      redirect: '/studio/login'
+    },
   ],
+})
+
+router.beforeEach((to) => {
+  const isStudioRoute = to.path.startsWith('/studio')
+  const isLoginRoute = to.path === '/studio/login'
+  const isLoggedIn = isAuthenticated()
+
+  if (isStudioRoute && !isLoginRoute && !isLoggedIn) {
+    clearAuthSession()
+    return { path: '/studio/login', query: { redirect: to.fullPath } }
+  }
+
+  if (isLoginRoute && isLoggedIn) {
+    return { path: '/studio/articles' }
+  }
+
+  return true
 })
 
 export default router

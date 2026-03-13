@@ -12,7 +12,9 @@ public record ArticleUpdateRequest(
     String content,
 
     @Size(max = 300, message = "summary 最长 300 字")
-    String summary
+    String summary,
+
+    Long categoryId
 ) {
     /*
      * 更新接口建议你支持“部分更新”或“全量更新”二选一：

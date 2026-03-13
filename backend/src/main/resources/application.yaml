@@ -4,8 +4,9 @@ spring:
 
   # 1. H2 数据库配置
   datasource:
-    # 这是 H2 内存数据库的连接地址，叫 nexblog
-    url: jdbc:h2:mem:NexBlog
+    # 使用文件模式存储数据库，这就不会重启丢失了
+    # ./data/NexBlog 表示会在项目运行目录下创建一个 data 文件夹存放数据库文件
+    url: jdbc:h2:file:./data/NexBlog
     driverClassName: org.h2.Driver
     username: pengkk27
     password: 123456
@@ -25,3 +26,18 @@ spring:
     # 在控制台打印出 JPA 帮你写的 SQL 语句，方便学习
     show-sql: true
     database-platform: org.hibernate.dialect.H2Dialect
+
+  # ai 配置
+  ai:
+    ollama:
+    # 你的本地 Ollama 默认运行端口就是 11434
+      base-url: http://localhost:11434
+      chat:
+          # 这里填你在电脑上用 Ollama 拉取的模型名字！
+          # 比如你拉取了千问：qwen2.5:7b，或者 llama3 等
+          model: qwen2.5:7b
+
+nexblog:
+  auth:
+    token-secret: ${NEXBLOG_AUTH_TOKEN_SECRET:nexblog-dev-token-secret-please-change-in-prod}
+    token-ttl-minutes: ${NEXBLOG_AUTH_TOKEN_TTL_MINUTES:720}

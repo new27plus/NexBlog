@@ -7,6 +7,8 @@ public record ArticleDetailResponse(
     String title,
     String content,
     String summary,
+    Long categoryId,
+    String categoryName,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {

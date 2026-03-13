@@ -16,8 +16,10 @@ import com.nexblog.backend.dto.article.ArticleListItemResponse;
 import com.nexblog.backend.dto.article.ArticleQueryRequest;
 import com.nexblog.backend.dto.article.ArticleUpdateRequest;
 import com.nexblog.backend.entity.Article;
+import com.nexblog.backend.entity.Category;
 import com.nexblog.backend.exception.BusinessException;
 import com.nexblog.backend.repository.ArticleRepository;
+import com.nexblog.backend.repository.CategoryRepository;
 import com.nexblog.backend.service.ArticleService;
 
 @Service
@@ -30,9 +32,11 @@ public class ArticleServiceImpl implements ArticleService {
      */
 
     private final ArticleRepository articleRepository;
+    private final CategoryRepository categoryRepository;
 
-    public ArticleServiceImpl(ArticleRepository articleRepository) {
+    public ArticleServiceImpl(ArticleRepository articleRepository, CategoryRepository categoryRepository) {
         this.articleRepository = articleRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
@@ -103,6 +107,7 @@ public class ArticleServiceImpl implements ArticleService {
         article.setTitle(request.title().trim());
         article.setContent(request.content());
         article.setSummary(request.summary());
+        article.setCategory(resolveCategory(request.categoryId()));
         article.setCreateTime(now);
         article.setUpDateTime(now);
 
@@ -125,6 +130,7 @@ public class ArticleServiceImpl implements ArticleService {
         article.setTitle(request.title().trim());
         article.setContent(request.content());
         article.setSummary(request.summary());
+        article.setCategory(resolveCategory(request.categoryId()));
         article.setUpDateTime(LocalDateTime.now());
 
         Article updated = articleRepository.save(article);
@@ -146,22 +152,36 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     private ArticleListItemResponse toListItemResponse(Article article) {
+        Category category = article.getCategory();
         return new ArticleListItemResponse(
             article.getId(),
             article.getTitle(),
             article.getSummary(),
+            category == null ? null : category.getId(),
+            category == null ? null : category.getName(),
             article.getCreateTime()
         );
     }
 
     private ArticleDetailResponse toDetailResponse(Article article) {
+        Category category = article.getCategory();
         return new ArticleDetailResponse(
             article.getId(),
             article.getTitle(),
             article.getContent(),
             article.getSummary(),
+            category == null ? null : category.getId(),
+            category == null ? null : category.getName(),
             article.getCreateTime(),
             article.getUpDateTime()
         );
+    }
+
+    private Category resolveCategory(Long categoryId) {
+        if (categoryId == null) {
+            return null;
+        }
+        return categoryRepository.findById(categoryId)
+            .orElseThrow(() -> new BusinessException(10002, "分类不存在，id=" + categoryId));
     }
 }

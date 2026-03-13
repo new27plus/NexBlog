@@ -2,10 +2,17 @@ package com.nexblog.backend.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebCorsConfig implements WebMvcConfigurer {
+
+    private final AuthTokenInterceptor authTokenInterceptor;
+
+    public WebCorsConfig(AuthTokenInterceptor authTokenInterceptor) {
+        this.authTokenInterceptor = authTokenInterceptor;
+    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -26,5 +33,11 @@ public class WebCorsConfig implements WebMvcConfigurer {
             .allowedOrigins("http://localhost:5173")
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
             .allowedHeaders("*");
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(authTokenInterceptor)
+            .addPathPatterns("/api/studio/**", "/api/ai/**", "/api/auth/me");
     }
 }

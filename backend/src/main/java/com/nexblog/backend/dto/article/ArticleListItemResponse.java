@@ -6,6 +6,8 @@ public record ArticleListItemResponse(
     Long id,
     String title,
     String summary,
+    Long categoryId,
+    String categoryName,
     LocalDateTime createdAt
 ) {
     /*

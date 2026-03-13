@@ -1,70 +1,149 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
-import { Menu, X } from 'lucide-vue-next'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { Menu, X, Github, LogOut, LayoutDashboard } from 'lucide-vue-next'
 
-/*
- * 导航栏交互状态：
- * - true: 手机端菜单展开
- * - false: 手机端菜单收起
- */
 const isMobileMenuOpen = ref(false)
+const isScrolled = ref(false)
 const currentRoute = useRoute()
+const router = useRouter()
 const isStudioPage = computed(() => currentRoute.path.startsWith('/studio'))
+
 const navRouteLinks = [
   { name: '博客首页', to: '/' },
-  { name: '分类', to: '/#categories' },
-  { name: '关于', to: '/#about' },
+  { name: '技术文章', to: '/#articles' },
+  { name: '关于作者', to: '/#about' },
 ]
+
 const studioRouteLinks = [
   { name: '文章管理', to: '/studio/articles' },
   { name: '分类管理', to: '/studio/categories' },
   { name: '返回博客', to: '/' },
 ]
+
+function handleScroll() {
+  isScrolled.value = window.scrollY > 20
+}
+
+async function handleStudioLogout() {
+  if (confirm('确定要退出登录吗？')) {
+    localStorage.removeItem('nexblog.studio.loggedIn')
+    isMobileMenuOpen.value = false
+    await router.push('/studio/login')
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <template>
-  <header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 dark:bg-slate-900/80 dark:border-slate-800 transition-all duration-300">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+  <header 
+    class="fixed top-0 w-full z-50 transition-all duration-300 border-b"
+    :class="[
+      isScrolled || isMobileMenuOpen 
+        ? 'bg-white/80 backdrop-blur-md border-slate-200 dark:bg-slate-900/80 dark:border-slate-800 shadow-sm' 
+        : 'bg-transparent border-transparent'
+    ]"
+  >
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
-        <RouterLink to="/" class="shrink-0 flex items-center gap-2 cursor-pointer">
-          <span class="text-2xl font-bold bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+        <!-- Logo -->
+        <RouterLink to="/" class="shrink-0 flex items-center gap-2.5 group">
+          <div class="w-8 h-8 rounded-xl bg-linear-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform duration-300">
+            <span class="font-bold text-lg">N</span>
+          </div>
+          <span class="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300">
             NexBlog
           </span>
-          <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
         </RouterLink>
 
-        <nav class="hidden md:flex space-x-8">
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex items-center space-x-1">
           <RouterLink
             v-for="link in isStudioPage ? studioRouteLinks : navRouteLinks"
             :key="link.name" 
             :to="link.to"
-            class="text-slate-600 hover:text-blue-600 font-medium transition-colors duration-200 dark:text-slate-300 dark:hover:text-blue-400"
+            class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800"
+            active-class="text-indigo-600 bg-indigo-50 dark:bg-slate-800 dark:text-white"
           >
             {{ link.name }}
           </RouterLink>
         </nav>
 
+        <!-- Right Side Actions -->
+        <div class="hidden md:flex items-center gap-3">
+          <a 
+            href="https://github.com" 
+            target="_blank" 
+            class="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800"
+            title="GitHub"
+          >
+            <Github class="w-5 h-5" />
+          </a>
+          
+          <div class="h-4 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+          <button
+            v-if="isStudioPage"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors"
+            @click="handleStudioLogout"
+          >
+            <LogOut class="w-4 h-4" />
+            <span>退出</span>
+          </button>
+        </div>
+
+        <!-- Mobile Menu Button -->
         <div class="md:hidden flex items-center">
-          <button @click="isMobileMenuOpen = !isMobileMenuOpen" class="text-slate-600 hover:text-slate-900 dark:text-slate-300">
+          <button 
+            @click="isMobileMenuOpen = !isMobileMenuOpen" 
+            class="p-2 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
+          >
             <component :is="isMobileMenuOpen ? X : Menu" class="w-6 h-6" />
           </button>
         </div>
       </div>
     </div>
 
-    <div v-show="isMobileMenuOpen" class="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-        <RouterLink
-          v-for="link in isStudioPage ? studioRouteLinks : navRouteLinks"
-          :key="link.name"
-          :to="link.to"
-          class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-          @click="isMobileMenuOpen = false"
-        >
-          {{ link.name }}
-        </RouterLink>
+    <!-- Mobile Menu -->
+    <Transition
+      enter-active-class="transition duration-200 ease-out"
+      enter-from-class="opacity-0 -translate-y-2"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition duration-150 ease-in"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 -translate-y-2"
+    >
+      <div v-show="isMobileMenuOpen" class="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white/95 backdrop-blur-md dark:bg-slate-900/95 shadow-xl">
+        <div class="px-4 pt-3 pb-6 space-y-2">
+          <RouterLink
+            v-for="link in isStudioPage ? studioRouteLinks : navRouteLinks"
+            :key="link.name"
+            :to="link.to"
+            class="block px-4 py-3 rounded-xl text-base font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white transition-all"
+            @click="isMobileMenuOpen = false"
+          >
+            {{ link.name }}
+          </RouterLink>
+          
+          <div class="h-px bg-slate-100 dark:bg-slate-800 my-2"></div>
+          
+          <button
+            v-if="isStudioPage"
+            class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 font-medium transition-all"
+            @click="handleStudioLogout"
+          >
+            <LogOut class="w-5 h-5" />
+            退出登录
+          </button>
+        </div>
       </div>
-    </div>
+    </Transition>
   </header>
 </template>

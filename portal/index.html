@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="NexBlog 项目门户：系统介绍、架构亮点、安装步骤与 GitHub Pages 发布指南。"
+    />
+    <title>NexBlog · 项目门户</title>
+    <style>
+      :root {
+        --bg: #070d1c;
+        --bg-soft: #101a35;
+        --card: #121e3ddd;
+        --line: #2a3e73;
+        --text: #ebf0ff;
+        --muted: #b7c4ee;
+        --primary: #8ca0ff;
+        --primary-strong: #6f87ff;
+        --accent: #66e8c8;
+        --warning: #ffd37b;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background:
+          radial-gradient(1200px 620px at 80% -120px, #2a3f81 0%, transparent 62%),
+          radial-gradient(1000px 680px at -16% 18%, #132e68 0%, transparent 58%),
+          var(--bg);
+        color: var(--text);
+        font-family: Inter, "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .wrap {
+        width: min(1140px, 92vw);
+        margin: 0 auto;
+      }
+      .skip-link {
+        position: absolute;
+        left: 10px;
+        top: -40px;
+        background: #ffffff;
+        color: #101a35;
+        padding: 8px 10px;
+        border-radius: 8px;
+        z-index: 20;
+      }
+      .skip-link:focus {
+        top: 10px;
+      }
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: blur(10px);
+        background: #070d1cd1;
+        border-bottom: 1px solid #233563;
+      }
+      .nav-inner {
+        min-height: 66px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        letter-spacing: 0.4px;
+      }
+      .brand-badge {
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        box-shadow: 0 0 0 1px #0000001a inset;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 18px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .nav-links a {
+        padding: 4px 6px;
+        border-radius: 8px;
+      }
+      .nav-links a:hover {
+        color: var(--text);
+        background: #ffffff14;
+      }
+      .hero {
+        padding: 78px 0 28px;
+      }
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 18px;
+      }
+      .hero-main {
+        background: linear-gradient(180deg, #152853aa 0%, #101a35aa 100%);
+        border: 1px solid #2d4377;
+        border-radius: 22px;
+        padding: 28px;
+      }
+      .hero-tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        border: 1px solid #3b5594;
+        border-radius: 999px;
+        padding: 0 12px;
+        color: #d4ddff;
+        font-size: 13px;
+      }
+      .hero h1 {
+        margin: 14px 0 12px;
+        font-size: clamp(30px, 4.7vw, 50px);
+        line-height: 1.08;
+      }
+      .hero p {
+        margin: 0;
+        color: var(--muted);
+        font-size: clamp(16px, 2.2vw, 19px);
+        line-height: 1.74;
+        max-width: 44em;
+      }
+      .hero-actions {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        border-radius: 12px;
+        border: 1px solid transparent;
+        padding: 0 16px;
+        font-weight: 700;
+        font-size: 14px;
+        transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+      }
+      .btn:hover {
+        transform: translateY(-1px);
+      }
+      .btn-primary {
+        color: #0b1430;
+        background: linear-gradient(135deg, var(--primary), #a2b0ff);
+      }
+      .btn-primary:hover {
+        background: linear-gradient(135deg, var(--primary-strong), #96a8ff);
+      }
+      .btn-outline {
+        color: var(--text);
+        border-color: #384f87;
+        background: #132041;
+      }
+      .btn-outline:hover {
+        border-color: #526fb9;
+        background: #162956;
+      }
+      .hero-side {
+        display: grid;
+        gap: 12px;
+      }
+      .metric-card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 14px 16px;
+      }
+      .metric-title {
+        margin: 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .metric-value {
+        margin: 6px 0 0;
+        font-size: 25px;
+        font-weight: 800;
+      }
+      .metric-note {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .section {
+        padding: 18px 0 6px;
+      }
+      .section h2 {
+        margin: 0 0 14px;
+        font-size: 26px;
+        line-height: 1.2;
+      }
+      .section .lead {
+        margin: 0 0 16px;
+        color: var(--muted);
+        line-height: 1.75;
+        max-width: 70ch;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 14px;
+      }
+      .card {
+        grid-column: span 4;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 18px;
+      }
+      .card h3 {
+        margin: 0;
+        font-size: 18px;
+      }
+      .card p {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.72;
+      }
+      .architecture {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 14px;
+      }
+      .architecture-block {
+        grid-column: span 6;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        padding: 16px;
+      }
+      .architecture-title {
+        margin: 0;
+        font-size: 17px;
+      }
+      .architecture-list {
+        margin: 10px 0 0;
+        padding-left: 20px;
+        color: var(--muted);
+        line-height: 1.9;
+      }
+      .shots {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 14px;
+      }
+      .shot {
+        grid-column: span 4;
+        background: linear-gradient(180deg, #16264daa, #0f1933aa);
+        border: 1px solid #324a83;
+        border-radius: 14px;
+        padding: 12px;
+      }
+      .shot-box {
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        border: 1px dashed #5573bd;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        color: #a9bbea;
+        font-size: 13px;
+        background: #0d1730;
+      }
+      .shot p {
+        margin: 10px 0 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .list {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 18px;
+      }
+      .list ol,
+      .list ul {
+        margin: 8px 0 0;
+        padding-left: 20px;
+        color: var(--muted);
+        line-height: 1.95;
+      }
+      .list code {
+        color: #e2e9ff;
+        background: #081229;
+        border: 1px solid #30457d;
+        border-radius: 8px;
+        padding: 2px 7px;
+      }
+      .timeline {
+        display: grid;
+        gap: 12px;
+      }
+      .step {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px 16px;
+      }
+      .step h3 {
+        margin: 0;
+        font-size: 16px;
+      }
+      .step p {
+        margin: 8px 0 0;
+        line-height: 1.72;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .step strong {
+        color: var(--accent);
+      }
+      .changelog {
+        display: grid;
+        gap: 10px;
+      }
+      .changelog-item {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #111f3f;
+        padding: 12px 14px;
+      }
+      .changelog-item h3 {
+        margin: 0;
+        font-size: 15px;
+      }
+      .changelog-item p {
+        margin: 8px 0 0;
+        color: var(--muted);
+        line-height: 1.68;
+        font-size: 14px;
+      }
+      .faq {
+        display: grid;
+        gap: 10px;
+      }
+      details {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #0f1a35;
+        padding: 12px 14px;
+      }
+      summary {
+        cursor: pointer;
+        font-weight: 700;
+        line-height: 1.6;
+      }
+      details p {
+        margin: 10px 0 0;
+        color: var(--muted);
+        line-height: 1.75;
+        font-size: 14px;
+      }
+      .cta {
+        margin-top: 16px;
+        background: linear-gradient(135deg, #1a2d5d, #122245);
+        border: 1px solid #3b5aa6;
+        border-radius: 18px;
+        padding: 22px;
+      }
+      .cta h2 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .cta p {
+        margin: 10px 0 0;
+        color: var(--muted);
+        line-height: 1.72;
+      }
+      .cta-actions {
+        margin-top: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .notice {
+        margin-top: 10px;
+        color: var(--warning);
+        font-size: 13px;
+      }
+      footer {
+        margin: 30px 0 32px;
+        border-top: 1px solid #2a3d73;
+        padding-top: 14px;
+        color: #95a5d4;
+        font-size: 13px;
+      }
+      a:focus-visible,
+      button:focus-visible,
+      summary:focus-visible {
+        outline: 2px solid #acc2ff;
+        outline-offset: 2px;
+        border-radius: 8px;
+      }
+      @media (max-width: 1040px) {
+        .hero-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 900px) {
+        .card,
+        .shot {
+          grid-column: span 6;
+        }
+        .architecture-block {
+          grid-column: span 12;
+        }
+      }
+      @media (max-width: 680px) {
+        .nav-links {
+          display: none;
+        }
+        .card,
+        .shot {
+          grid-column: span 12;
+        }
+        .hero-main {
+          padding: 22px 18px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+          animation: none !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a href="#main" class="skip-link">跳到主内容</a>
+    <nav class="nav" aria-label="主导航">
+      <div class="wrap nav-inner">
+        <div class="brand">
+          <span class="brand-badge" aria-hidden="true"></span>
+          <span>NexBlog · 项目门户</span>
+        </div>
+        <div class="nav-links">
+          <a href="#intro">介绍</a>
+          <a href="#features">能力</a>
+          <a href="#architecture">架构</a>
+          <a href="#install">安装</a>
+          <a href="#faq">FAQ</a>
+        </div>
+      </div>
+    </nav>
+
+    <main id="main">
+      <header class="hero wrap" id="intro">
+        <div class="hero-grid">
+          <section class="hero-main">
+            <span class="hero-tag">Production-Ready Portal</span>
+            <h1>NexBlog：从写作到发布的一体化博客系统</h1>
+            <p>
+              这是一个更正式的项目门户版本，专门用于展示系统价值、落地方式与维护路径。页面独立于业务前端，可单独部署到
+              GitHub Pages 作为项目官网入口。
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="https://github.com/" target="_blank" rel="noreferrer">查看源码仓库</a>
+              <a class="btn btn-outline" href="#install">开始安装</a>
+              <a class="btn btn-outline" href="#deploy">查看发布流程</a>
+            </div>
+          </section>
+          <aside class="hero-side" aria-label="项目指标">
+            <article class="metric-card">
+              <p class="metric-title">项目形态</p>
+              <p class="metric-value">前后端分离</p>
+              <p class="metric-note">Reader + Studio + Publish 链路</p>
+            </article>
+            <article class="metric-card">
+              <p class="metric-title">当前定位</p>
+              <p class="metric-value">MVP 可用</p>
+              <p class="metric-note">已支持一键静态化与 GitHub 发布</p>
+            </article>
+            <article class="metric-card">
+              <p class="metric-title">学习价值</p>
+              <p class="metric-value">工程实战</p>
+              <p class="metric-note">鉴权、构建、部署、故障定位全覆盖</p>
+            </article>
+          </aside>
+        </div>
+      </header>
+
+      <section class="section wrap" id="features">
+        <h2>核心能力</h2>
+        <p class="lead">覆盖内容生产、展示、AI 辅助与发布闭环，支持从本地开发到公开上线的完整路径。</p>
+        <div class="grid">
+          <article class="card">
+            <h3>前台阅读端</h3>
+            <p>文章列表与详情阅读，专注轻量访问体验，适合作为公开博客站点。</p>
+          </article>
+          <article class="card">
+            <h3>后台管理端</h3>
+            <p>文章/分类管理、配置管理、登录鉴权，满足个人创作与运维管理需求。</p>
+          </article>
+          <article class="card">
+            <h3>AI 写作辅助</h3>
+            <p>支持正文润色、摘要生成与内容打磨，降低写作成本并提升一致性。</p>
+          </article>
+          <article class="card">
+            <h3>静态导出能力</h3>
+            <p>将数据导出为静态资源，结合预览机制确保发布前可验证。</p>
+          </article>
+          <article class="card">
+            <h3>一键发布流程</h3>
+            <p>从构建到推送一条链路完成，部署到 GitHub Pages 更直接。</p>
+          </article>
+          <article class="card">
+            <h3>可扩展工程骨架</h3>
+            <p>清晰分层便于增加标签、搜索、评论、权限与日志审计等模块。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section wrap" id="architecture">
+        <h2>架构亮点</h2>
+        <div class="architecture">
+          <article class="architecture-block">
+            <h3 class="architecture-title">前端层（Vue 3 + TypeScript）</h3>
+            <ul class="architecture-list">
+              <li>公共前台与后台工作台分离路由，职责清晰</li>
+              <li>统一 API 封装与鉴权拦截，错误信息直达页面</li>
+              <li>静态化构建支持动态 Base Path，适配 Pages 子路径</li>
+            </ul>
+          </article>
+          <article class="architecture-block">
+            <h3 class="architecture-title">后端层（Spring Boot）</h3>
+            <ul class="architecture-list">
+              <li>Controller / Service / Repository 分层明确</li>
+              <li>统一异常处理与业务错误码，便于故障定位</li>
+              <li>独立预览接口与发布服务，支持本地验证与远端发布</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section wrap" id="screenshots">
+        <h2>页面截图位</h2>
+        <p class="lead">可将下列占位替换为真实截图，建议分别展示前台、后台和发布页。</p>
+        <div class="shots">
+          <article class="shot">
+            <div class="shot-box">替换为首页截图（1200×750）</div>
+            <p>Reader：展示文章列表、搜索入口、文章详情风格。</p>
+          </article>
+          <article class="shot">
+            <div class="shot-box">替换为后台截图（1200×750）</div>
+            <p>Studio：展示写作编辑器、分类管理与 AI 辅助界面。</p>
+          </article>
+          <article class="shot">
+            <div class="shot-box">替换为发布截图（1200×750）</div>
+            <p>Publish：展示静态包生成、预览及发布成功状态。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section wrap" id="install">
+        <h2>安装与启动</h2>
+        <div class="list">
+          <ol>
+            <li>克隆项目：<code>git clone &lt;your-repo-url&gt; NexBlog</code></li>
+            <li>启动后端：<code>cd backend</code> → <code>./gradlew bootRun</code></li>
+            <li>启动前端：<code>cd front</code> → <code>npm install</code> → <code>npm run dev</code></li>
+            <li>初始化管理员：访问 <code>/studio/login</code> 按页面指引完成首次配置</li>
+            <li>默认地址：前端 <code>http://localhost:5173</code>，后端 <code>http://localhost:8080</code></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section wrap" id="deploy">
+        <h2>一键发布流程</h2>
+        <div class="timeline">
+          <article class="step">
+            <h3>Step 1 · 生成静态包</h3>
+            <p>在全局设置页点击“生成静态包”，系统会导出数据并完成静态资源构建。</p>
+          </article>
+          <article class="step">
+            <h3>Step 2 · 本地预览验证</h3>
+            <p>点击“打开本地预览”，确认页面与资源无异常后再执行发布。</p>
+          </article>
+          <article class="step">
+            <h3>Step 3 · 发布到 GitHub</h3>
+            <p>点击“发布到 GitHub”后自动推送构建产物到目标分支并上线。<strong>当前链路已验证可用。</strong></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section wrap" id="changelog">
+        <h2>更新记录</h2>
+        <div class="changelog">
+          <article class="changelog-item">
+            <h3>v1.1 · 门户升级版</h3>
+            <p>新增架构亮点、截图位、FAQ、更新记录与更完整的品牌化布局。</p>
+          </article>
+          <article class="changelog-item">
+            <h3>v1.0 · 初版门户</h3>
+            <p>完成系统介绍、安装说明、一键发布流程与独立部署建议。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section wrap" id="faq">
+        <h2>常见问题</h2>
+        <div class="faq">
+          <details>
+            <summary>这个门户页是否依赖 Vue 项目？</summary>
+            <p>不依赖。它是单独的 HTML 文件，可直接双击打开或单独部署到 GitHub Pages。</p>
+          </details>
+          <details>
+            <summary>门户页和博客主站应该如何分仓？</summary>
+            <p>建议门户页独立仓库，主站继续使用现有发布链路。这样官网信息与业务代码可以独立迭代。</p>
+          </details>
+          <details>
+            <summary>发布按钮成功后仍有问题怎么办？</summary>
+            <p>先看预览地址和浏览器网络面板，再核对静态包目录与资源前缀。该项目已具备快速定位链路。</p>
+          </details>
+        </div>
+      </section>
+
+      <section class="section wrap">
+        <div class="cta">
+          <h2>准备上线门户页？</h2>
+          <p>将当前文件放到单独仓库根目录并开启 GitHub Pages，即可获得一个正式的项目官网入口。</p>
+          <div class="cta-actions">
+            <a class="btn btn-primary" href="https://github.com/" target="_blank" rel="noreferrer">前往 GitHub 创建仓库</a>
+            <a class="btn btn-outline" href="#screenshots">先替换截图内容</a>
+          </div>
+          <p class="notice">提示：将两个 GitHub 链接替换为你的实际仓库地址后再发布。</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="wrap">NexBlog Project Portal · 独立静态页面 · 项目介绍与安装入口</footer>
+  </body>
+</html>

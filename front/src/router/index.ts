@@ -5,6 +5,7 @@ import StudioArticleView from '@/views/StudioArticleView.vue'
 import StudioCategoryView from '@/views/StudioCategoryView.vue'
 import StudioLoginView from '@/views/StudioLoginView.vue'
 import { clearAuthSession, isAuthenticated } from '@/api/auth'
+import SystemConfigView from '@/views/SystemConfigView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -74,6 +75,11 @@ const router = createRouter({
       path: '/app/admin/login',
       redirect: '/studio/login'
     },
+    {
+      path: '/studio/system-config',
+      name: 'studio-system-config',
+      component: SystemConfigView
+    }
   ],
 })
 

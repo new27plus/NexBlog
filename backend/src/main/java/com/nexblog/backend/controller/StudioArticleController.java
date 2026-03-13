@@ -33,9 +33,9 @@ public class StudioArticleController {
 
     @GetMapping
     public ApiResponse<Page<ArticleListItemResponse>> list(
-        @RequestParam(required = false) Integer page,
-        @RequestParam(required = false) Integer size,
-        @RequestParam(required = false) String keyword
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String keyword
     ) {
         return ApiResponse.success(articleService.listPublicArticles(new ArticleQueryRequest(page, size, keyword)));
     }
@@ -52,8 +52,8 @@ public class StudioArticleController {
 
     @PutMapping("/{id}")
     public ApiResponse<ArticleDetailResponse> update(
-        @PathVariable Long id,
-        @Valid @RequestBody ArticleUpdateRequest request
+            @PathVariable Long id,
+            @Valid @RequestBody ArticleUpdateRequest request
     ) {
         return ApiResponse.success(articleService.updateArticle(id, request));
     }

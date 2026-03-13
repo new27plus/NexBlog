@@ -6,7 +6,7 @@ import { clearAuthSession, getAuthUsername } from '@/api/auth'
 
 const props = defineProps<{
   title: string
-  active: 'articles' | 'categories'
+  active: 'articles' | 'categories' | 'settings'
 }>()
 
 const route = useRoute()
@@ -120,13 +120,14 @@ function handlePublish() {
 
         <div class="mt-6 mb-2 px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">系统</div>
 
-        <button
-          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-all duration-200 group hover:bg-slate-800 hover:text-white text-left"
-          type="button"
+        <RouterLink
+          to="/studio/system-config"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-all duration-200 group"
+          :class="props.active === 'settings' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/20' : 'hover:bg-slate-800 hover:text-white'"
         >
-          <Settings class="w-5 h-5 text-slate-400 group-hover:text-white transition-transform group-hover:scale-110" />
+          <Settings class="w-5 h-5 transition-transform group-hover:scale-110" :class="props.active === 'settings' ? 'text-indigo-200' : 'text-slate-400 group-hover:text-white'" />
           全局设置
-        </button>
+        </RouterLink>
       </nav>
 
       <div class="p-4 border-t border-slate-800 space-y-2 bg-slate-900/50">

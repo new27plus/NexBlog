@@ -38,6 +38,7 @@ public class WebCorsConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authTokenInterceptor)
-            .addPathPatterns("/api/studio/**", "/api/ai/**", "/api/auth/me");
+            .addPathPatterns("/api/studio/**", "/api/ai/**", "/api/auth/me")
+            .excludePathPatterns("/preview/**");
     }
 }

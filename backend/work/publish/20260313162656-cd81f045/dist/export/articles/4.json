@@ -1,0 +1,10 @@
+{
+  "id" : 4,
+  "title" : "List",
+  "content" : "今天天气不错，我决定撰写一篇关于Java List的博客。首先启动电脑，打开IDEA并新建了一个Markdown文件，命名为“List源码阅读流水账.md”。\n\n我开始回忆List的定义。List是一个接口，位于`java.util`包中，有多个实现类，其中最著名的有`ArrayList`和`LinkedList`。我首先查看了`ArrayList`的源码。打开后，我注意到`elementData`数组，它是一个`Object`类型。接着，我发现`size`变量记录了当前列表大小，初始容量为10。在`add`方法中，如果容量不足，会调用`grow`方法。`grow`方法中，新容量为旧容量的1.5倍，即右移一位后再加自身。扩容后，会使用`Arrays.copyOf`进行数组复制，这个过程可能比较耗时，因此建议在初始化时指定合适的大小。\n\n接着，我查看了`LinkedList`。`LinkedList`内部包含一个名为Node的内部类，具有`item`、`next`和`prev`三个字段，构成双向链表结构。与`ArrayList`相比，`LinkedList`没有数组，因此`get`方法效率较低，需要遍历。源码中的`node`方法会根据索引位置（靠近头还是尾）选择从哪一边开始遍历，这是一个优化。如果在中间插入元素，`ArrayList`需要移动元素，而`LinkedList`只需修改指针，前提是先找到插入位置，这个查找过程同样较慢。\n\n经过对比，我发现`ArrayList`在查找方面表现更好，但增删操作效率较低（除末尾添加外）；相比之下，`LinkedList`的增删操作理论上更快（找到节点后），但查找效率较低。此外，`LinkedList`的每个节点额外存储了两个指针，占用更多内存。考虑到现代电脑内存较大，CPU缓存对性能的影响更为重要，`ArrayList`由于连续存储，缓存命中率较高，通常表现更佳。\n\n最后，我考虑了线程安全问题。`ArrayList`和`LinkedList`均非线程安全，若需线程安全，可以使用`Collections.synchronizedList`或`CopyOnWriteArrayList`。尽管`Vector`线程安全，但因其过时，不建议使用。\n\n至此，我已撰写完成约500字的博客，内容涵盖了`ArrayList`和`LinkedList`的源码阅读。通过这次阅读，我收获颇丰。明天打算继续阅读`HashMap`源码，希望不要再次睡着。保存博客后，我起身去喝杯水。这就是我今天阅读`List`源码的全过程，纯纯的流水账记录。",
+  "summary" : "Java List接口及其两种常见实现类ArrayList和LinkedList的源码分析显示两者各有优势与不足。",
+  "categoryId" : 1,
+  "categoryName" : "分类1",
+  "createdAt" : [ 2026, 3, 13, 11, 29, 40, 73687000 ],
+  "updatedAt" : [ 2026, 3, 13, 11, 29, 40, 73687000 ]
+}

@@ -71,6 +71,24 @@ export interface ArticleWritePayload {
  * - 未配置时用默认值，方便你开箱即跑
  */
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
+const IS_STATIC_EXPORT = import.meta.env.VITE_STATIC_EXPORT === 'true'
+const STATIC_SITE_BASE_PATH = normalizeBasePath(import.meta.env.VITE_SITE_BASE_PATH ?? '/')
+
+function normalizeBasePath(basePath: string): string {
+  let normalized = basePath.trim()
+  if (!normalized.startsWith('/')) {
+    normalized = `/${normalized}`
+  }
+  if (!normalized.endsWith('/')) {
+    normalized = `${normalized}/`
+  }
+  return normalized
+}
+
+function buildStaticUrl(relativePath: string): string {
+  const cleanPath = relativePath.startsWith('/') ? relativePath.slice(1) : relativePath
+  return `${STATIC_SITE_BASE_PATH}${cleanPath}`
+}
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const token = getAuthToken()
@@ -113,6 +131,37 @@ export async function getPublicArticles(params?: {
   size?: number
   keyword?: string
 }): Promise<PageData<ArticleListItem>> {
+  if (IS_STATIC_EXPORT) {
+    const response = await fetch(buildStaticUrl('/export/articles.json'))
+    if (!response.ok) {
+      throw new Error(`静态文章列表读取失败：${response.status}`)
+    }
+    const list = (await response.json()) as ArticleListItem[]
+    const keyword = (params?.keyword ?? '').trim().toLowerCase()
+    const filtered = keyword
+      ? list.filter(item =>
+          item.title.toLowerCase().includes(keyword)
+          || (item.summary ?? '').toLowerCase().includes(keyword)
+        )
+      : list
+
+    const page = params?.page ?? 0
+    const size = params?.size ?? 10
+    const start = page * size
+    const end = start + size
+    const content = filtered.slice(start, end)
+    const totalElements = filtered.length
+    const totalPages = totalElements === 0 ? 0 : Math.ceil(totalElements / size)
+
+    return {
+      content,
+      totalPages,
+      totalElements,
+      size,
+      number: page,
+    }
+  }
+
   const search = new URLSearchParams()
   if (params?.page !== undefined) search.set('page', String(params.page))
   if (params?.size !== undefined) search.set('size', String(params.size))
@@ -122,6 +171,13 @@ export async function getPublicArticles(params?: {
 }
 
 export async function getPublicArticleDetail(id: number): Promise<ArticleDetail> {
+  if (IS_STATIC_EXPORT) {
+    const response = await fetch(buildStaticUrl(`/export/articles/${id}.json`))
+    if (!response.ok) {
+      throw new Error(`静态文章详情读取失败：${response.status}`)
+    }
+    return (await response.json()) as ArticleDetail
+  }
   return request<ArticleDetail>(`/api/public/articles/${id}`)
 }
 

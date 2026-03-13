@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { Rocket, Github, Menu, X } from 'lucide-vue-next'
+import { Menu, X } from 'lucide-vue-next'
 
 /*
  * 导航栏交互状态：
@@ -10,24 +10,16 @@ import { Rocket, Github, Menu, X } from 'lucide-vue-next'
  */
 const isMobileMenuOpen = ref(false)
 const currentRoute = useRoute()
-const isPortalPage = computed(() => !currentRoute.path.startsWith('/app'))
-const navRouteLinks = computed(() =>
-  isPortalPage.value
-    ? [{ name: '门户首页', to: '/' }]
-    : [
-        { name: '门户首页', to: '/' },
-        { name: '系统文章', to: '/app/articles' },
-        { name: '写作后台', to: '/app/studio/articles' },
-      ],
-)
-
-/*
- * 页面锚点导航：
- * - 使用普通 <a href="#...">
- */
-const anchorLinks = [
-  { name: 'Features', href: '#features' },
-  { name: 'About', href: '#about' },
+const isStudioPage = computed(() => currentRoute.path.startsWith('/studio'))
+const navRouteLinks = [
+  { name: '博客首页', to: '/' },
+  { name: '分类', to: '/#categories' },
+  { name: '关于', to: '/#about' },
+]
+const studioRouteLinks = [
+  { name: '文章管理', to: '/studio/articles' },
+  { name: '分类管理', to: '/studio/categories' },
+  { name: '返回博客', to: '/' },
 ]
 </script>
 
@@ -44,34 +36,14 @@ const anchorLinks = [
 
         <nav class="hidden md:flex space-x-8">
           <RouterLink
-            v-for="link in navRouteLinks"
+            v-for="link in isStudioPage ? studioRouteLinks : navRouteLinks"
             :key="link.name" 
             :to="link.to"
             class="text-slate-600 hover:text-blue-600 font-medium transition-colors duration-200 dark:text-slate-300 dark:hover:text-blue-400"
           >
             {{ link.name }}
           </RouterLink>
-          <a
-            v-if="isPortalPage"
-            v-for="link in anchorLinks"
-            :key="`${link.name}-anchor`"
-            :href="link.href"
-            class="text-slate-600 hover:text-blue-600 font-medium transition-colors duration-200 dark:text-slate-300 dark:hover:text-blue-400"
-          >
-            {{ link.name }}
-          </a>
         </nav>
-
-        <div class="hidden md:flex items-center space-x-4">
-          <RouterLink :to="isPortalPage ? '/app/studio/articles' : '/app/articles'" class="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-transform active:scale-95 dark:bg-white dark:text-slate-900 font-medium text-sm">
-            <Rocket class="w-4 h-4" />
-            <span>{{ isPortalPage ? '登录后台' : '进入系统' }}</span>
-          </RouterLink>
-          
-          <a href="#" class="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">
-            <Github class="w-5 h-5" />
-          </a>
-        </div>
 
         <div class="md:hidden flex items-center">
           <button @click="isMobileMenuOpen = !isMobileMenuOpen" class="text-slate-600 hover:text-slate-900 dark:text-slate-300">
@@ -84,7 +56,7 @@ const anchorLinks = [
     <div v-show="isMobileMenuOpen" class="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
       <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
         <RouterLink
-          v-for="link in navRouteLinks"
+          v-for="link in isStudioPage ? studioRouteLinks : navRouteLinks"
           :key="link.name"
           :to="link.to"
           class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
@@ -92,16 +64,6 @@ const anchorLinks = [
         >
           {{ link.name }}
         </RouterLink>
-        <a
-          v-if="isPortalPage"
-          v-for="link in anchorLinks"
-          :key="`${link.name}-mobile-anchor`"
-          :href="link.href"
-          class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-          @click="isMobileMenuOpen = false"
-        >
-          {{ link.name }}
-        </a>
       </div>
     </div>
   </header>

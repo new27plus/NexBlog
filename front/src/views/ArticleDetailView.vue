@@ -53,7 +53,7 @@ onMounted(loadArticleDetail)
   <DefaultLayout>
     <section class="py-12 sm:py-16">
       <div class="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-        <RouterLink to="/app/articles" class="text-sm font-medium text-blue-600 hover:text-blue-700">← 返回文章中心</RouterLink>
+        <RouterLink to="/" class="text-sm font-medium text-blue-600 hover:text-blue-700">← 返回博客首页</RouterLink>
 
         <p v-if="isLoading" class="mt-6 text-sm text-slate-500">正在加载文章详情...</p>
 

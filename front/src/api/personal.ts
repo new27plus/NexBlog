@@ -9,8 +9,8 @@ export interface ApiResponse<T> {
 }
 
 // 页面分区键：
-// 这 4 个字符串会作为 sections 的固定键名，写错键名会被 TypeScript 直接拦截
-export type SectionKey = 'intro' | 'links' | 'topics' | 'updates'
+// 这 6 个字符串会作为 sections 的固定键名，写错键名会被 TypeScript 直接拦截
+export type SectionKey = 'intro' | 'story' | 'links' | 'topics' | 'tags' | 'updates'
 
 // 单条个人内容项：
 // 每个分区里是 PersonalItem[]，即“一个分区可以有多条内容”
@@ -20,6 +20,7 @@ export interface PersonalItem {
   subtitle: string
   content: string
   tag: string
+  linkIcon: string
   linkLabel: string
   linkUrl: string
 }

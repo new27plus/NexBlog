@@ -1,5 +1,7 @@
 package com.nexblog.backend.service.publish;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nexblog.backend.dto.publish.PublishPrepareResponse;
 import com.nexblog.backend.dto.publish.PublishReleaseResponse;
 import com.nexblog.backend.entity.SystemConfig;
@@ -19,6 +21,7 @@ public class PublishService {
     private final FrontendBuildService frontendBuildService;
     private final GitReleaseService gitReleaseService;
     private final ConfigRepository configRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
     public PublishService(
         PublishWorkspaceService publishWorkspaceService,
@@ -64,6 +67,19 @@ public class PublishService {
         );
     }
 
+    public PublishPrepareResponse latestPrepared() {
+        PublishWorkspaceService.PublishWorkspace workspace = publishWorkspaceService.resolveLatestWorkspace();
+        if (workspace == null) {
+            return null;
+        }
+        return new PublishPrepareResponse(
+            workspace.jobId(),
+            resolveArticleCount(workspace),
+            workspace.distRoot(),
+            buildPreviewBasePath(workspace.jobId())
+        );
+    }
+
     public Path resolvePreviewFile(String jobId, String relativePath) {
         PublishWorkspaceService.PublishWorkspace workspace = publishWorkspaceService.resolveWorkspace(jobId);
         Path distRoot = Path.of(workspace.distRoot()).toAbsolutePath().normalize();
@@ -88,6 +104,19 @@ public class PublishService {
 
     private String buildPreviewBasePath(String jobId) {
         return "/preview/" + jobId + "/";
+    }
+
+    private int resolveArticleCount(PublishWorkspaceService.PublishWorkspace workspace) {
+        Path articlesFile = Path.of(workspace.exportRoot()).resolve("articles.json");
+        if (!Files.exists(articlesFile)) {
+            return 0;
+        }
+        try {
+            JsonNode root = objectMapper.readTree(articlesFile.toFile());
+            return root.isArray() ? root.size() : 0;
+        } catch (Exception ignored) {
+            return 0;
+        }
     }
 
     private SystemConfig requireConfig(boolean requireToken) {

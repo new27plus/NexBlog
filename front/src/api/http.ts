@@ -14,6 +14,54 @@ export interface RequestOptions extends RequestInit {
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
 
+function stringifyErrorDetail(value: unknown): string {
+  if (value == null) return ''
+  if (typeof value === 'string') return value
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => stringifyErrorDetail(item))
+      .filter((item) => item.length > 0)
+      .join('\n')
+  }
+  if (typeof value === 'object') {
+    const lines = Object.entries(value as Record<string, unknown>)
+      .map(([key, detail]) => {
+        const text = stringifyErrorDetail(detail)
+        return text ? `${key}: ${text}` : ''
+      })
+      .filter((line) => line.length > 0)
+    return lines.join('\n')
+  }
+  return String(value)
+}
+
+async function parseResponseErrorMessage(response: Response): Promise<string> {
+  const backup = response.clone()
+  try {
+    const errorBody = (await response.json()) as Partial<ApiResponse<unknown>> & Record<string, unknown>
+    const message = typeof errorBody.message === 'string' ? errorBody.message.trim() : ''
+    const code = typeof errorBody.code === 'number' ? errorBody.code : null
+    const detail = stringifyErrorDetail(
+      errorBody.data ?? errorBody.detail ?? errorBody.details ?? errorBody.error
+    ).trim()
+
+    if (message && code !== null) {
+      return detail ? `[${code}] ${message}\n${detail}` : `[${code}] ${message}`
+    }
+    if (message) {
+      return detail ? `${message}\n${detail}` : message
+    }
+  } catch {
+  }
+
+  try {
+    const raw = (await backup.text()).trim()
+    if (raw) return raw
+  } catch {
+  }
+  return ''
+}
+
 export async function request<T>(path: string, options?: RequestOptions): Promise<T> {
   const withAuth = options?.withAuth ?? true
   const parseErrorMessage = options?.parseErrorMessage ?? true
@@ -40,12 +88,9 @@ export async function request<T>(path: string, options?: RequestOptions): Promis
     }
 
     if (parseErrorMessage) {
-      try {
-        const errorBody = (await response.json()) as ApiResponse<null>
-        if (errorBody.message) {
-          throw new Error(errorBody.message)
-        }
-      } catch {
+      const parsedErrorMessage = await parseResponseErrorMessage(response)
+      if (parsedErrorMessage) {
+        throw new Error(`HTTP ${response.status}: ${parsedErrorMessage}`)
       }
     }
 

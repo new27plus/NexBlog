@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -71,6 +72,29 @@ public class PublishWorkspaceService {
             exportArticlesRoot.toString(),
             distRoot.toString()
         );
+    }
+
+    public PublishWorkspace resolveLatestWorkspace() {
+        Path rootPath = Path.of(workspaceRoot).toAbsolutePath().normalize();
+        if (!Files.exists(rootPath) || !Files.isDirectory(rootPath)) {
+            return null;
+        }
+
+        try (var stream = Files.list(rootPath)) {
+            Path latestJobRoot = stream
+                .filter(Files::isDirectory)
+                .filter(path -> Files.exists(path.resolve("dist").resolve("index.html")))
+                .sorted(Comparator.comparing((Path path) -> path.getFileName().toString()).reversed())
+                .findFirst()
+                .orElse(null);
+            if (latestJobRoot == null) {
+                return null;
+            }
+            String jobId = latestJobRoot.getFileName().toString();
+            return resolveWorkspace(jobId);
+        } catch (IOException e) {
+            throw new BusinessException(50004, "读取最近发布任务失败: " + e.getMessage());
+        }
     }
 
     public record PublishWorkspace(

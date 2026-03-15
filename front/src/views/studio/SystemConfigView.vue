@@ -2,7 +2,7 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { AlertCircle, CheckCircle2, ExternalLink, Loader2, Rocket, Save, ShieldCheck, Upload } from 'lucide-vue-next'
 import StudioLayout from '@/layouts/StudioLayout.vue'
-import { API_BASE_URL, getSystemConfig, preparePublish, releasePublish, upsertSystemConfig } from '@/api/config'
+import { API_BASE_URL, getLatestPublish, getSystemConfig, preparePublish, releasePublish, upsertSystemConfig, type PublishPrepareResponse } from '@/api/config'
 
 const PUBLISH_SESSION_KEY = 'nexblog:publish:session'
 
@@ -29,6 +29,9 @@ const preparedArticleCount = ref(0)
 const preparedDistPath = ref('')
 const isReleasing = ref(false)
 const releaseError = ref('')
+const releaseErrorDetail = ref('')
+const releaseErrorReason = ref('')
+const releaseErrorActions = ref<string[]>([])
 const releaseMessage = ref('')
 const publishedUrl = ref('')
 
@@ -40,6 +43,24 @@ const canSubmit = computed(() => {
     form.siteBasePath.trim().length > 0 &&
     !isSubmitting.value
   )
+})
+
+const manualPublishCommandText = computed(() => {
+  const staticPath = preparedDistPath.value || '<静态包目录>'
+  const branch = form.publishBranch.trim() || 'gh-pages'
+  const owner = form.githubOwner.trim() || '<owner>'
+  const repo = form.githubRepo.trim() || '<repo>'
+  const repoUrl = `https://github.com/${owner}/${repo}.git`
+  return [
+    `cd "${staticPath}"`,
+    'git init',
+    `git checkout -B ${branch}`,
+    'git add -A',
+    'git commit -m "deploy: manual publish"',
+    'git remote remove origin',
+    `git remote add origin ${repoUrl}`,
+    `git push --force origin ${branch}`,
+  ].join('\n')
 })
 
 function applyConfig(data: {
@@ -93,6 +114,26 @@ function persistPublishSession() {
   )
 }
 
+function applyPreparedResult(result: PublishPrepareResponse, message: string) {
+  preparedJobId.value = result.jobId
+  preparedPreviewPath.value = result.previewPath
+  preparedArticleCount.value = result.articleCount
+  preparedDistPath.value = result.distPath
+  prepareMessage.value = message
+  persistPublishSession()
+}
+
+async function hydrateLatestPrepared() {
+  try {
+    const latest = await getLatestPublish()
+    if (!latest) return
+    if (!preparedJobId.value || !preparedPreviewPath.value) {
+      applyPreparedResult(latest, `已加载最近一次静态包，共导出 ${latest.articleCount} 篇文章`)
+    }
+  } catch {
+  }
+}
+
 async function loadConfig() {
   isLoading.value = true
   loadError.value = ''
@@ -134,15 +175,14 @@ async function handlePreparePublish() {
   prepareError.value = ''
   prepareMessage.value = ''
   releaseError.value = ''
+  releaseErrorDetail.value = ''
+  releaseErrorReason.value = ''
+  releaseErrorActions.value = []
   releaseMessage.value = ''
+  publishedUrl.value = ''
   try {
     const result = await preparePublish()
-    preparedJobId.value = result.jobId
-    preparedPreviewPath.value = result.previewPath
-    preparedArticleCount.value = result.articleCount
-    preparedDistPath.value = result.distPath
-    prepareMessage.value = `静态包生成完成，共导出 ${result.articleCount} 篇文章`
-    persistPublishSession()
+    applyPreparedResult(result, `静态包生成完成，共导出 ${result.articleCount} 篇文章`)
   } catch (error) {
     prepareError.value = error instanceof Error ? error.message : '静态包生成失败'
   } finally {
@@ -158,13 +198,72 @@ function openPreview() {
   window.open(`${API_BASE_URL}${previewPath}`, '_blank')
 }
 
+function resolveReleaseErrorGuidance(errorText: string) {
+  const normalized = errorText.toLowerCase()
+  if (
+    normalized.includes('could not connect to server') ||
+    normalized.includes('failed to connect') ||
+    normalized.includes('unable to access') ||
+    normalized.includes('timed out')
+  ) {
+    return {
+      reason: '服务器到 GitHub 的网络连接失败（443 无法连通）',
+      actions: [
+        '检查后端服务所在机器是否能访问 https://github.com',
+        '若在公司网络，配置可用代理并放行 github.com:443',
+        '在服务器终端执行 git ls-remote https://github.com/<owner>/<repo>.git 验证连通性',
+      ],
+    }
+  }
+  if (normalized.includes('authentication failed') || normalized.includes('bad credentials')) {
+    return {
+      reason: 'GitHub Token 无效或已过期',
+      actions: [
+        '重新生成具有 repo 权限的 Personal Access Token',
+        '在“全局设置”里重新保存 GitHub Token 后再次发布',
+      ],
+    }
+  }
+  if (normalized.includes('repository not found')) {
+    return {
+      reason: '仓库不存在，或 Token 没有该仓库访问权限',
+      actions: [
+        '确认 GitHub Owner 和 Repo 名称拼写完全正确',
+        '确认目标仓库存在且 Token 对该仓库有读写权限',
+      ],
+    }
+  }
+  if (normalized.includes('src refspec') || normalized.includes('remote rejected')) {
+    return {
+      reason: '推送分支被远端拒绝',
+      actions: [
+        '检查发布分支名称是否正确（如 gh-pages）',
+        '确认仓库规则未阻止该分支的强制推送',
+      ],
+    }
+  }
+  return {
+    reason: '发布命令执行失败',
+    actions: [
+      '先查看上方详细日志中的第一条 fatal 报错',
+      '根据报错关键字检查网络、Token 权限、仓库名和分支配置',
+    ],
+  }
+}
+
 async function handleReleasePublish() {
   if (!preparedJobId.value) {
-    releaseError.value = '请先生成静态包并预览'
-    return
+    await hydrateLatestPrepared()
+    if (!preparedJobId.value) {
+      releaseError.value = '请先生成静态包'
+      return
+    }
   }
   isReleasing.value = true
   releaseError.value = ''
+  releaseErrorDetail.value = ''
+  releaseErrorReason.value = ''
+  releaseErrorActions.value = []
   releaseMessage.value = ''
   try {
     const result = await releasePublish({ jobId: preparedJobId.value })
@@ -172,15 +271,21 @@ async function handleReleasePublish() {
     releaseMessage.value = `发布完成，提交 ${result.commitId.slice(0, 8)}，分支 ${result.branch}`
     persistPublishSession()
   } catch (error) {
-    releaseError.value = error instanceof Error ? error.message : '发布到 GitHub 失败'
+    const rawMessage = error instanceof Error ? error.message : '发布到 GitHub 失败'
+    const [title, ...detailLines] = rawMessage.split('\n')
+    releaseError.value = title || '发布到 GitHub 失败'
+    releaseErrorDetail.value = detailLines.join('\n').trim()
+    const guidance = resolveReleaseErrorGuidance(rawMessage)
+    releaseErrorReason.value = guidance.reason
+    releaseErrorActions.value = guidance.actions
   } finally {
     isReleasing.value = false
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   restorePublishSession()
-  loadConfig()
+  await Promise.all([loadConfig(), hydrateLatestPrepared()])
 })
 </script>
 
@@ -353,9 +458,28 @@ onMounted(() => {
             {{ prepareMessage }}
           </p>
 
-          <p v-if="releaseError" class="mt-2 text-xs text-red-600">
-            {{ releaseError }}
-          </p>
+          <div v-if="releaseError" class="mt-2 rounded-xl border border-red-200 bg-red-50 p-3">
+            <p class="text-xs font-medium text-red-700">{{ releaseError }}</p>
+            <pre
+              v-if="releaseErrorDetail"
+              class="mt-2 max-h-64 overflow-auto whitespace-pre-wrap break-all rounded-lg bg-red-100/70 p-2 text-[11px] leading-5 text-red-700"
+            >{{ releaseErrorDetail }}</pre>
+            <div v-if="releaseErrorReason" class="mt-2 rounded-lg border border-red-200 bg-white/70 p-2">
+              <p class="text-xs font-semibold text-red-700">原因判断：{{ releaseErrorReason }}</p>
+              <ul v-if="releaseErrorActions.length" class="mt-1 list-disc space-y-1 pl-4 text-[11px] leading-5 text-red-700">
+                <li v-for="(action, index) in releaseErrorActions" :key="`${index}-${action}`">{{ action }}</li>
+              </ul>
+            </div>
+            <div v-if="preparedDistPath" class="mt-2 rounded-lg border border-red-200 bg-white/70 p-2">
+              <p class="text-xs font-semibold text-red-700">手动发布教程（网络不稳定时）</p>
+              <ol class="mt-1 list-decimal space-y-1 pl-4 text-[11px] leading-5 text-red-700">
+                <li>打开终端并进入静态包目录</li>
+                <li>执行下方命令初始化并切换到发布分支</li>
+                <li>提交静态文件并强制推送到 GitHub Pages 分支</li>
+              </ol>
+              <pre class="mt-2 max-h-64 overflow-auto whitespace-pre-wrap break-all rounded-lg bg-red-100/70 p-2 text-[11px] leading-5 text-red-700">{{ manualPublishCommandText }}</pre>
+            </div>
+          </div>
           <p v-else-if="releaseMessage" class="mt-2 text-xs text-emerald-600">
             {{ releaseMessage }}
           </p>

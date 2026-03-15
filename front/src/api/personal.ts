@@ -40,6 +40,14 @@ export interface PersonalConfigWritePayload {
   sections: Record<SectionKey, PersonalItem[]>
 }
 
+const IS_STATIC_EXPORT = import.meta.env.VITE_STATIC_EXPORT === 'true'
+const STATIC_SITE_BASE_PATH = import.meta.env.BASE_URL || '/'
+
+function buildStaticUrl(relativePath: string): string {
+  const cleanPath = relativePath.startsWith('/') ? relativePath.slice(1) : relativePath
+  return `${STATIC_SITE_BASE_PATH}${cleanPath}`
+}
+
 // 后台读取个人配置：
 // Promise<PersonalConfig> 表示“异步完成后会拿到 PersonalConfig”
 export async function getStudioPersonalConfig(): Promise<PersonalConfig> {
@@ -58,5 +66,12 @@ export async function updatePersonalConfig(payload: PersonalConfigWritePayload):
 // 前台公开读取个人配置：
 // 如果你的后端路由是 /api/public/personal-config，这里改成对应路径即可
 export async function getPersonalConfig(): Promise<PersonalConfig> {
+  if (IS_STATIC_EXPORT) {
+    const response = await fetch(buildStaticUrl('/export/personal-config.json'))
+    if (!response.ok) {
+      throw new Error(`静态个人配置读取失败：${response.status}`)
+    }
+    return (await response.json()) as PersonalConfig
+  }
   return request<PersonalConfig>('/api/personal-config')
 }

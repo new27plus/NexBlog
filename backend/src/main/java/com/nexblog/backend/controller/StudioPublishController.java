@@ -23,6 +23,11 @@ public class StudioPublishController {
         return ApiResponse.success(publishService.prepare());
     }
 
+    @GetMapping("/latest")
+    public ApiResponse<PublishPrepareResponse> latest() {
+        return ApiResponse.success(publishService.latestPrepared());
+    }
+
     @PostMapping("/release")
     public ApiResponse<PublishReleaseResponse> release(@Valid @RequestBody PublishReleaseRequest request) {
         return ApiResponse.success(publishService.release(request.jobId()));

@@ -1,0 +1,130 @@
+{
+  "id" : 1,
+  "sections" : {
+    "intro" : [ {
+      "id" : "1773539135615-gxprmh5",
+      "title" : "pengkk27",
+      "subtitle" : "因为太过依赖AI而导致不会变成的小菜鸡\uD83D\uDC14",
+      "content" : "因为太过依赖AI而导致什么都不会变成的小菜鸡\uD83D\uDC14",
+      "tag" : "开场",
+      "linkIcon" : "",
+      "linkLabel" : "",
+      "linkUrl" : ""
+    } ],
+    "story" : [ {
+      "id" : "1773541251356-65a6ibw",
+      "title" : "我的故事",
+      "subtitle" : "",
+      "content" : "学过一些Vue前端，也会一些Java的Spring Boot后端。\n\n对深度学习AI只是会用PyTorch去搭建固有的网络去运行训练。\n\n总之就是很菜喽。",
+      "tag" : "",
+      "linkIcon" : "",
+      "linkLabel" : "",
+      "linkUrl" : ""
+    } ],
+    "links" : [ {
+      "id" : "1773540609458-kt6souv",
+      "title" : "我的 GitHub",
+      "subtitle" : "代码与项目",
+      "content" : "这里一句话说明这个链接为什么值得点击。",
+      "tag" : "链接",
+      "linkIcon" : "github",
+      "linkLabel" : "访问 GitHub",
+      "linkUrl" : "https://github.com/new27plus"
+    }, {
+      "id" : "1773542383806-0gf9h8q",
+      "title" : "",
+      "subtitle" : "微博",
+      "content" : "",
+      "tag" : "",
+      "linkIcon" : "weibo",
+      "linkLabel" : "",
+      "linkUrl" : "https://weibo.com/n/pengkk27"
+    }, {
+      "id" : "1773542395781-vouw52f",
+      "title" : "",
+      "subtitle" : "Bilibili",
+      "content" : "",
+      "tag" : "",
+      "linkIcon" : "bilibili",
+      "linkLabel" : "",
+      "linkUrl" : "https://space.bilibili.com/383147619?spm_id_from=333.1007.0.0"
+    } ],
+    "topics" : [ {
+      "id" : "1773540056703-xjz010x",
+      "title" : "Vue3",
+      "subtitle" : "",
+      "content" : "渐进式JavaScript框架，采用组合式API提升代码复用与性能。",
+      "tag" : "主题",
+      "linkIcon" : "",
+      "linkLabel" : "",
+      "linkUrl" : "https://cn.vuejs.org/"
+    }, {
+      "id" : "1773542121731-hpndto7",
+      "title" : "Spring Boot",
+      "subtitle" : "",
+      "content" : "Java 生态中最流行的开源框架，旨在简化基于 Spring 的应用程序初始搭建和开发过程。",
+      "tag" : "",
+      "linkIcon" : "",
+      "linkLabel" : "",
+      "linkUrl" : "https://spring.io/projects/spring-boot?spm=5176.28103460.0.0.72ab63083KNueV"
+    }, {
+      "id" : "1773542158139-cc8iewx",
+      "title" : "PyTorch",
+      "subtitle" : "",
+      "content" : "写你关注这个方向的原因，以及你想做出的内容。",
+      "tag" : "",
+      "linkIcon" : "",
+      "linkLabel" : "",
+      "linkUrl" : "https://pytorch.org/?spm=5176.28103460.0.0.72ab63083KNueV"
+    }, {
+      "id" : "1773542208950-k624o6s",
+      "title" : "深度学习",
+      "subtitle" : "",
+      "content" : "深度学习是机器学习的一个子集，通过模拟人脑神经网络结构来处理复杂数据。",
+      "tag" : "",
+      "linkIcon" : "",
+      "linkLabel" : "",
+      "linkUrl" : ""
+    } ],
+    "tags" : [ {
+      "id" : "1773541384274-vow6uhq",
+      "title" : "独立开发者",
+      "subtitle" : "",
+      "content" : "",
+      "tag" : "",
+      "linkIcon" : "",
+      "linkLabel" : "",
+      "linkUrl" : ""
+    }, {
+      "id" : "1773541392493-kop3pto",
+      "title" : "老牌菜鸟",
+      "subtitle" : "",
+      "content" : "",
+      "tag" : "",
+      "linkIcon" : "",
+      "linkLabel" : "",
+      "linkUrl" : ""
+    }, {
+      "id" : "1773541409556-r557k1i",
+      "title" : "深度学习小白",
+      "subtitle" : "",
+      "content" : "",
+      "tag" : "",
+      "linkIcon" : "",
+      "linkLabel" : "",
+      "linkUrl" : ""
+    } ],
+    "updates" : [ {
+      "id" : "1773540674580-3aadkdt",
+      "title" : "Github",
+      "subtitle" : "2026.03",
+      "content" : "使用AI创建NexBlog博客项目。",
+      "tag" : "动态",
+      "linkIcon" : "",
+      "linkLabel" : "",
+      "linkUrl" : ""
+    } ]
+  },
+  "createdAt" : [ 2026, 3, 15, 9, 45, 31, 709124000 ],
+  "updatedAt" : [ 2026, 3, 15, 10, 40, 52, 294603000 ]
+}

@@ -59,6 +59,10 @@ export async function preparePublish(): Promise<PublishPrepareResponse> {
   })
 }
 
+export async function getLatestPublish(): Promise<PublishPrepareResponse | null> {
+  return request<PublishPrepareResponse | null>('/api/studio/publish/latest')
+}
+
 export async function releasePublish(payload: PublishReleasePayload): Promise<PublishReleaseResponse> {
   return request<PublishReleaseResponse>('/api/studio/publish/release', {
     method: 'POST',

@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { FileText, LayoutDashboard, LogOut, PenTool, Rocket, Settings, Tags } from 'lucide-vue-next'
+import { FileText, LayoutDashboard, LogOut, PenTool, Rocket, Settings, Tags, User } from 'lucide-vue-next'
 import { clearAuthSession, getAuthUsername } from '@/api/auth'
 
+// 定义布局组件的属性, 包含标题和当前激活的导航项, 用于高亮显示当前页面的导航项
 const props = defineProps<{
   title: string
-  active: 'articles' | 'categories' | 'settings'
+  active: 'articles' | 'categories' | 'settings' | 'personal-config'
 }>()
 
 const route = useRoute()
@@ -69,7 +70,7 @@ function handlePublish() {
 
 <template>
   <div class="h-screen w-full flex bg-slate-50 overflow-hidden">
-    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 transition-all duration-300 shadow-xl z-20">
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 transition-all duration-300 shadow-xl z-20">
       <div class="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm">
         <span class="text-xl font-bold text-white tracking-tight flex items-center gap-2">
           <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black">N</div>
@@ -127,6 +128,15 @@ function handlePublish() {
         >
           <Settings class="w-5 h-5 transition-transform group-hover:scale-110" :class="props.active === 'settings' ? 'text-indigo-200' : 'text-slate-400 group-hover:text-white'" />
           全局设置
+        </RouterLink>
+
+        <RouterLink
+          to="/studio/personal-config"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-all duration-200 group"
+          :class="props.active === 'personal-config' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/20' : 'hover:bg-slate-800 hover:text-white'"
+        >
+          <User class="w-5 h-5 transition-transform group-hover:scale-110" :class="props.active === 'personal-config' ? 'text-indigo-200' : 'text-slate-400 group-hover:text-white'" />
+          个人设置
         </RouterLink>
       </nav>
 

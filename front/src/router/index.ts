@@ -1,11 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '@/views/HomeView.vue'
-import ArticleDetailView from '@/views/ArticleDetailView.vue'
-import StudioArticleView from '@/views/StudioArticleView.vue'
-import StudioCategoryView from '@/views/StudioCategoryView.vue'
-import StudioLoginView from '@/views/StudioLoginView.vue'
+import HomeView from '@/views/site/HomeView.vue'
+import ArticleDetailView from '@/views/site/ArticleDetailView.vue'
+import ArticlesListView from '@/views/site/ArticlesListView.vue'
+import AboutView from '@/views/site/AboutView.vue'
+import StudioArticleView from '@/views/studio/StudioArticleView.vue'
+import StudioCategoryView from '@/views/studio/StudioCategoryView.vue'
+import StudioLoginView from '@/views/studio/StudioLoginView.vue'
 import { clearAuthSession, isAuthenticated } from '@/api/auth'
-import SystemConfigView from '@/views/SystemConfigView.vue'
+import SystemConfigView from '@/views/studio/SystemConfigView.vue'
+import PersonalConfigView from '@/views/studio/PersonalConfigView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,6 +24,16 @@ const router = createRouter({
       component: ArticleDetailView
     },
     {
+      path: '/articles',
+      name: 'articles-list',
+      component: ArticlesListView
+    },
+    {
+      path: '/about',
+      name: 'about',
+      component: AboutView
+    },
+    {
       path: '/studio/articles',
       name: 'studio-articles',
       component: StudioArticleView
@@ -34,6 +47,11 @@ const router = createRouter({
       path: '/studio/categories',
       name: 'studio-categories',
       component: StudioCategoryView
+    },
+    {
+      path: '/studio/personal-config',
+      name: 'studio-personal-config',
+      component: PersonalConfigView
     },
     {
       path: '/app/articles',

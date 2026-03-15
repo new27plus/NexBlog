@@ -1,36 +1,19 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { Menu, X, Github, LogOut, LayoutDashboard } from 'lucide-vue-next'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { RouterLink } from 'vue-router'
+import { Menu, X, Github } from 'lucide-vue-next'
 
 const isMobileMenuOpen = ref(false)
 const isScrolled = ref(false)
-const currentRoute = useRoute()
-const router = useRouter()
-const isStudioPage = computed(() => currentRoute.path.startsWith('/studio'))
-
+// 导航栏的路由链接
 const navRouteLinks = [
   { name: '博客首页', to: '/' },
-  { name: '技术文章', to: '/#articles' },
-  { name: '关于作者', to: '/#about' },
-]
-
-const studioRouteLinks = [
-  { name: '文章管理', to: '/studio/articles' },
-  { name: '分类管理', to: '/studio/categories' },
-  { name: '返回博客', to: '/' },
+  { name: '技术文章', to: '/articles' },
+  { name: '关于作者', to: '/about' },
 ]
 
 function handleScroll() {
   isScrolled.value = window.scrollY > 20
-}
-
-async function handleStudioLogout() {
-  if (confirm('确定要退出登录吗？')) {
-    localStorage.removeItem('nexblog.studio.loggedIn')
-    isMobileMenuOpen.value = false
-    await router.push('/studio/login')
-  }
 }
 
 onMounted(() => {
@@ -66,7 +49,7 @@ onUnmounted(() => {
         <!-- Desktop Navigation -->
         <nav class="hidden md:flex items-center space-x-1">
           <RouterLink
-            v-for="link in isStudioPage ? studioRouteLinks : navRouteLinks"
+            v-for="link in navRouteLinks"
             :key="link.name" 
             :to="link.to"
             class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800"
@@ -89,14 +72,6 @@ onUnmounted(() => {
           
           <div class="h-4 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
 
-          <button
-            v-if="isStudioPage"
-            class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors"
-            @click="handleStudioLogout"
-          >
-            <LogOut class="w-4 h-4" />
-            <span>退出</span>
-          </button>
         </div>
 
         <!-- Mobile Menu Button -->
@@ -123,7 +98,7 @@ onUnmounted(() => {
       <div v-show="isMobileMenuOpen" class="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white/95 backdrop-blur-md dark:bg-slate-900/95 shadow-xl">
         <div class="px-4 pt-3 pb-6 space-y-2">
           <RouterLink
-            v-for="link in isStudioPage ? studioRouteLinks : navRouteLinks"
+            v-for="link in navRouteLinks"
             :key="link.name"
             :to="link.to"
             class="block px-4 py-3 rounded-xl text-base font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white transition-all"
@@ -133,15 +108,6 @@ onUnmounted(() => {
           </RouterLink>
           
           <div class="h-px bg-slate-100 dark:bg-slate-800 my-2"></div>
-          
-          <button
-            v-if="isStudioPage"
-            class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 font-medium transition-all"
-            @click="handleStudioLogout"
-          >
-            <LogOut class="w-5 h-5" />
-            退出登录
-          </button>
         </div>
       </div>
     </Transition>

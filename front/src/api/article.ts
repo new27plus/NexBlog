@@ -7,7 +7,7 @@
  * 3) 接口地址、返回结构、错误处理都能统一管理。
  */
 
-import { getAuthToken } from '@/api/auth'
+import { request } from '@/api/http'
 
 export interface ApiResponse<T> {
   /*
@@ -65,12 +65,6 @@ export interface ArticleWritePayload {
   categoryId?: number | null
 }
 
-/*
- * 环境变量说明：
- * - 本地开发：VITE_API_BASE_URL=http://localhost:8080
- * - 未配置时用默认值，方便你开箱即跑
- */
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
 const IS_STATIC_EXPORT = import.meta.env.VITE_STATIC_EXPORT === 'true'
 const STATIC_SITE_BASE_PATH = normalizeBasePath(import.meta.env.VITE_SITE_BASE_PATH ?? '/')
 
@@ -88,42 +82,6 @@ function normalizeBasePath(basePath: string): string {
 function buildStaticUrl(relativePath: string): string {
   const cleanPath = relativePath.startsWith('/') ? relativePath.slice(1) : relativePath
   return `${STATIC_SITE_BASE_PATH}${cleanPath}`
-}
-
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = getAuthToken()
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(init?.headers ?? {}),
-    },
-    ...init,
-  })
-
-  /*
-   * 为什么先判断 HTTP 状态码：
-   * - 4xx/5xx 时后端可能都还没返回业务结构，先兜底更稳
-   */
-  if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error('登录已过期，请重新登录')
-    }
-    throw new Error(`HTTP 请求失败：${response.status}`)
-  }
-
-  const body = (await response.json()) as ApiResponse<T>
-
-  /*
-   * 为什么判断业务 code：
-   * - HTTP 成功不代表业务成功
-   * - 例如参数校验失败，可能是 200 + code 非 0（视后端设计）
-   */
-  if (body.code !== 0) {
-    throw new Error(body.message || '业务请求失败')
-  }
-
-  return body.data
 }
 
 export async function getPublicArticles(params?: {

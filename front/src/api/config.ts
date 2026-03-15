@@ -1,4 +1,5 @@
-import { getAuthToken } from '@/api/auth'
+import { request } from '@/api/http'
+export { API_BASE_URL } from '@/api/http'
 
 export interface ApiResponse<T> {
   code: number
@@ -39,40 +40,6 @@ export interface PublishReleaseResponse {
   branch: string
   commitId: string
   publishedUrl: string
-}
-
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
-
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = getAuthToken()
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(init?.headers ?? {}),
-    },
-    ...init,
-  })
-
-  if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error('登录已过期，请重新登录')
-    }
-    try {
-      const errorBody = (await response.json()) as ApiResponse<null>
-      if (errorBody.message) {
-        throw new Error(errorBody.message)
-      }
-    } catch {
-    }
-    throw new Error(`HTTP 请求失败：${response.status}`)
-  }
-
-  const body = (await response.json()) as ApiResponse<T>
-  if (body.code !== 0) {
-    throw new Error(body.message || '业务请求失败')
-  }
-  return body.data
 }
 
 export async function getSystemConfig(): Promise<SystemConfigDetail> {

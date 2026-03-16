@@ -135,13 +135,14 @@ onMounted(loadArticles)
             :to="`/articles/${article.id}`"
             class="group flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 hover:-translate-y-1 dark:bg-slate-800 dark:border-slate-700"
           >
-            <div class="aspect-video bg-slate-100 relative overflow-hidden dark:bg-slate-700">
-              <div class="absolute inset-0 bg-linear-to-tr from-indigo-500/10 to-blue-500/10 group-hover:scale-105 transition-transform duration-500"></div>
-              <div class="absolute top-4 left-4">
-                <span class="px-3 py-1 rounded-full bg-white/90 backdrop-blur text-xs font-bold text-slate-900 shadow-sm dark:bg-slate-900/90 dark:text-white">
-                  Article
-                </span>
-              </div>
+            <div v-if="article.coverImageUrl" class="aspect-video bg-slate-100 relative overflow-hidden dark:bg-slate-700">
+              <img
+                :src="article.coverImageUrl"
+                :alt="`${article.title} 封面`"
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-linear-to-t from-slate-900/15 via-transparent to-transparent"></div>
             </div>
             
             <div class="p-6 flex flex-col flex-1">

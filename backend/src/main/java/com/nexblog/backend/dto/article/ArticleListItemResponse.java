@@ -6,6 +6,7 @@ public record ArticleListItemResponse(
     Long id,
     String title,
     String summary,
+    String coverImageUrl,
     Long categoryId,
     String categoryName,
     LocalDateTime createdAt

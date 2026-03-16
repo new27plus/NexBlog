@@ -7,6 +7,7 @@ public record ArticleDetailResponse(
     String title,
     String content,
     String summary,
+    String coverImageUrl,
     Long categoryId,
     String categoryName,
     LocalDateTime createdAt,

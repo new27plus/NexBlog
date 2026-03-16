@@ -42,6 +42,7 @@ export interface ArticleListItem {
   id: number
   title: string
   summary: string | null
+  coverImageUrl: string | null
   categoryId: number | null
   categoryName: string | null
   createdAt: string
@@ -52,6 +53,7 @@ export interface ArticleDetail {
   title: string
   content: string
   summary: string | null
+  coverImageUrl: string | null
   categoryId: number | null
   categoryName: string | null
   createdAt: string

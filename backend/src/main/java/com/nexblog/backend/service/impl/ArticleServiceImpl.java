@@ -1,6 +1,8 @@
 package com.nexblog.backend.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +26,7 @@ import com.nexblog.backend.service.ArticleService;
 
 @Service
 public class ArticleServiceImpl implements ArticleService {
+    private static final Pattern MARKDOWN_IMAGE_PATTERN = Pattern.compile("!\\[[^\\]]*]\\(([^\\s)]+)(?:\\s+\"[^\"]*\")?\\)");
     /*
      * 你现在第一优先功能：先打通“前台可读”能力
      * Step-1: listPublicArticles（首页列表）
@@ -157,6 +160,7 @@ public class ArticleServiceImpl implements ArticleService {
             article.getId(),
             article.getTitle(),
             article.getSummary(),
+            resolveCoverImageUrl(article.getContent()),
             category == null ? null : category.getId(),
             category == null ? null : category.getName(),
             article.getCreateTime()
@@ -170,11 +174,31 @@ public class ArticleServiceImpl implements ArticleService {
             article.getTitle(),
             article.getContent(),
             article.getSummary(),
+            resolveCoverImageUrl(article.getContent()),
             category == null ? null : category.getId(),
             category == null ? null : category.getName(),
             article.getCreateTime(),
             article.getUpDateTime()
         );
+    }
+
+    private String resolveCoverImageUrl(String content) {
+        if (!StringUtils.hasText(content)) {
+            return null;
+        }
+        Matcher matcher = MARKDOWN_IMAGE_PATTERN.matcher(content);
+        if (!matcher.find()) {
+            return null;
+        }
+        String url = matcher.group(1);
+        if (!StringUtils.hasText(url)) {
+            return null;
+        }
+        String normalized = url.trim();
+        if (normalized.startsWith("<") && normalized.endsWith(">") && normalized.length() > 2) {
+            normalized = normalized.substring(1, normalized.length() - 1).trim();
+        }
+        return StringUtils.hasText(normalized) ? normalized : null;
     }
 
     private Category resolveCategory(Long categoryId) {

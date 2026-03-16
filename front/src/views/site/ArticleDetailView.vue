@@ -154,6 +154,15 @@ onMounted(loadArticleDetail)
         </div>
 
         <div v-else-if="article">
+          <div v-if="article.coverImageUrl" class="mb-10 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800">
+            <img
+              :src="article.coverImageUrl"
+              :alt="`${article.title} 封面`"
+              class="h-full max-h-[460px] w-full object-cover"
+              loading="lazy"
+            />
+          </div>
+
           <!-- Summary Card -->
           <div v-if="article.summary" class="bg-indigo-50/50 border border-indigo-100 rounded-2xl p-6 mb-10 dark:bg-indigo-900/20 dark:border-indigo-900/50">
             <h3 class="flex items-center gap-2 text-indigo-900 font-bold mb-3 dark:text-indigo-300">
